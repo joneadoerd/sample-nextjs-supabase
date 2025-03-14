@@ -4,7 +4,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "migrate-dev": "dotenv -e .env.local -- npx prisma migrate dev && db:trigger ",
+    "generate-dev": "dotenv -e .env.local -- npx prisma generate && db:trigger ",
     "db:trigger": " dotenv -e .env.local -- npx tsx lib/seedTriggers.ts"
   },
   "dependencies": {
