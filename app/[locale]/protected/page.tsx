@@ -2,7 +2,7 @@ import FetchDataSteps from "@/components/tutorial/fetch-data-steps";
 import { createClient } from "@/utils/supabase/server";
 import { InfoIcon } from "lucide-react";
 import { redirect } from "next/navigation";
-
+import { prisma } from "@/lib/db";
 export default async function ProtectedPage() {
   const supabase = await createClient();
 
@@ -13,9 +13,15 @@ export default async function ProtectedPage() {
   if (!user) {
     return redirect("/sign-in");
   }
-
+  const notes = await prisma.note.findMany({
+    where: { userId: user.id },
+  });
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
+       <main>
+      <h1 className="text-2xl text-center mb-8">Protected page</h1>
+      <pre>{JSON.stringify({  notes }, null, 4)}</pre>
+    </main>
       <div className="w-full">
         <div className="bg-accent text-sm p-3 px-5 rounded-md text-foreground flex gap-3 items-center">
           <InfoIcon size="16" strokeWidth={2} />

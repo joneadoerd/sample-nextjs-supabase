@@ -54,7 +54,7 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", error.message);
   }
   const locale = await getLocale();
-  return redirect({ href: "/protected", locale: locale });
+  return redirect({ href: "/", locale: locale });
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {
@@ -68,7 +68,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/api/auth/callback?redirect_to=/protected/reset-password`,
+    redirectTo: `${origin}/api/auth/callback?redirect_to=/reset-password`,
   });
 
   if (error) {
