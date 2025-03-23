@@ -2,29 +2,38 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider                         = "zod-prisma-types"
+  output                           = "./types" // default is ./generated/zod
+  useMultipleFiles                 = true // default is false
+  // writeBarrelFiles                 = false // default is true
+  createInputTypes                 = false // default is true
+  // createModelTypes                 = false // default is true
+  // addInputTypeValidation           = false // default is true
+  // addIncludeType                   = false // default is true
+  // addSelectType                    = false // default is true
+  validateWhereUniqueInput         = false // default is true
+  createOptionalDefaultValuesTypes = true // default is false
+  createRelationValuesTypes        = true // default is false
+  createPartialTypes               = true // default is false
+  useDefaultValidators             = false // default is true
+  // coerceDate                       = false // default is true
+  // writeNullishInModelTypes         = true // default is false
+}
+
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model Profile {
   id    String @id @db.Uuid
-  name  String @db.Text @default("Anonymous")
-  email String  @db.Text @unique
+  name  String @default("Anonymous") @db.Text
+  email String @unique @db.Text
   role  Role   @default(user)
-  notes Note[]
 
   @@map("profile")
-}
-
-model Note {
-  id     String  @id @default(uuid()) @db.Uuid
-  text   String
-  userId String  @db.Uuid
-  user   Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("note")
 }
 
 enum Role {
