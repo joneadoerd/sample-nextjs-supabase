@@ -14,8 +14,8 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import { EditUserDialog } from "@/components/edit-user-dialog";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { toast } from "sonner";
-import { Profile } from "@prisma/client";
 import { createUser, updateUser, deleteUser } from "@/actions/user-actions";
+import { Profile } from "@/prisma/types";
 
 export function UsersTable({ users }: { users: Profile[] }) {
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);

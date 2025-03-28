@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Profile, Role } from "@prisma/client"
+import { Profile, RoleSchema } from "@/prisma/types"
 
 interface EditUserDialogProps {
   user: Profile | null
@@ -23,7 +23,7 @@ export function EditUserDialog({ user, open, onOpenChange, onUpdate, isCreating 
     id: "",
     name: "",
     email: "",
-    role:Role.user,
+    role:RoleSchema.Enum.user,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -34,7 +34,7 @@ export function EditUserDialog({ user, open, onOpenChange, onUpdate, isCreating 
         id: crypto.randomUUID(),
         name: "",
         email: "",
-        role:Role.user,
+        role:RoleSchema.Enum.user,
       })
     } else if (user) {
       setFormData(user)
@@ -101,8 +101,11 @@ export function EditUserDialog({ user, open, onOpenChange, onUpdate, isCreating 
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={Role.admin} >Admin</SelectItem>
-                  <SelectItem value={Role.user}>User</SelectItem>
+                  {Object.values(RoleSchema.Enum).map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

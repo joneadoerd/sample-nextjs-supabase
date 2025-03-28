@@ -33,7 +33,39 @@ model Profile {
   email String @unique @db.Text
   role  Role   @default(user)
 
+  subscriptions Subscription? // One-to-Many: A user can have multiple subscriptions
+  services      Service? // One-to-One: A user can have one service
+
   @@map("profile")
+}
+
+model Service {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.Text
+  date        DateTime @db.Timestamptz
+  images      Json // Array of image URLs
+  description String   @db.Text
+  userId      String   @unique @db.Uuid
+  user        Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("service")
+}
+
+model Subscription {
+  id                  String             @id @default(uuid()) @db.Uuid
+  start_date          DateTime           @db.Timestamptz
+  expire_date         DateTime           @db.Timestamptz
+  status_subscription SubscriptionStatus @default(EXPIRED)
+  userId              String             @unique @db.Uuid
+  user                Profile            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscription")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
 }
 
 enum Role {

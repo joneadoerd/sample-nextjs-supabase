@@ -2,8 +2,9 @@
 
 import { prisma } from "@/lib/db";
 import { createClient } from "@/utils/supabase/server";
-import { Profile } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { isAdmin } from "./checkAdmin";
+import { Profile } from "@/prisma/types";
 
 // Get Supabase instance
 
@@ -29,8 +30,7 @@ export async function getCurrentUserProfile() {
 
 // 🔵 Get All Users (Admin Only)
 export async function getAllUsers() {
-  const adminCheck = await getCurrentUserProfile();
-  if (adminCheck?.role !== "admin") throw new Error("Access Denied");
+  if (! await isAdmin()) throw new Error("Access Denied");
 
   return await prisma.profile.findMany();
 }
@@ -40,7 +40,12 @@ export async function createUser(user:Profile) {
   const supabase = await createClient();
   const {
     error,
+    data
   } = await supabase.auth.admin.createUser(user);
+  await prisma.profile.update({
+    where: { id: data.user?.id },
+    data:  user
+  });
   revalidatePath("/");
 
   if (error) {
@@ -50,8 +55,7 @@ export async function createUser(user:Profile) {
 
 // 🟡 Update User Role (Admin Only)
 export async function updateUser(user:Profile) {
-  const adminCheck = await getCurrentUserProfile();
-  if (adminCheck?.role !== "admin") throw new Error("Access Denied");
+  if (! await isAdmin()) throw new Error("Access Denied");
 
   const updatedUser = await prisma.profile.update({
     where: { id: user.id },
@@ -63,8 +67,7 @@ export async function updateUser(user:Profile) {
 
 // 🔴 Delete User (Admin Only)
 export async function deleteUser(userId: string) {
-  const adminCheck = await getCurrentUserProfile();
-  if (adminCheck?.role !== "admin") throw new Error("Access Denied");
+  if (! await isAdmin()) throw new Error("Access Denied");
 
   const deletedUser = await prisma.profile.delete({
     where: { id: userId },

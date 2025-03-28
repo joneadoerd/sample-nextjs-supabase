@@ -4,8 +4,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "generate-dev": "dotenv -e .env.local -- npx prisma generate && db:trigger ",
-    "db:trigger": " dotenv -e .env.local -- npx tsx lib/seedTriggers.ts"
+    "generate-dev": "pnpm db:generate && pnpm db:trigger ",
+    "db:generate": "dotenv -e .env.local -- npx prisma generate ",
+    "db:trigger": " dotenv -e .env.local -- npx tsx lib/seedTriggers.ts",
+    "db:push": " dotenv -e .env.local -- npx prisma db push",
+    "db:pull": " dotenv -e .env.local -- npx prisma db pull",
+    "db:studio": " dotenv -e .env.local -- npx prisma studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
