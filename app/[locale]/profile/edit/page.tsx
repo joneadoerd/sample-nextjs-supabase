@@ -1,10 +1,10 @@
-import type { Metadata } from "next"
-import { EditProfileForm } from "@/components/edit-profile-form"
+import type { Metadata } from "next";
+import { EditProfileForm } from "@/components/edit-profile-form";
 
 export const metadata: Metadata = {
   title: "Edit Profile",
   description: "Update your profile information",
-}
+};
 
 export default function EditProfilePage() {
   return (
@@ -14,6 +14,5 @@ export default function EditProfilePage() {
         <EditProfileForm />
       </div>
     </div>
-  )
+  );
 }
-

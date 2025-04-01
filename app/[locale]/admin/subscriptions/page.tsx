@@ -1,15 +1,15 @@
-import Link from "next/link"
-import { PlusCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { SubscriptionsTable } from "@/components/subscriptions-table"
-import { getSubscriptions } from "@/lib/subscription-actions"
+import Link from "next/link";
+import { PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SubscriptionsTable } from "@/components/subscriptions-table";
+import { getSubscriptions } from "@/lib/subscription-actions";
 
 export const metadata = {
   title: "Subscriptions | Admin Dashboard",
-}
+};
 
 export default async function SubscriptionsPage() {
-  const { subscriptions, error } = await getSubscriptions()
+  const { subscriptions, error } = await getSubscriptions();
 
   return (
     <div>
@@ -24,11 +24,12 @@ export default async function SubscriptionsPage() {
       </div>
 
       {error ? (
-        <div className="bg-destructive/10 text-destructive p-4 rounded-md">{error}</div>
+        <div className="bg-destructive/10 text-destructive p-4 rounded-md">
+          {error}
+        </div>
       ) : (
         <SubscriptionsTable subscriptions={subscriptions || []} />
       )}
     </div>
-  )
+  );
 }
-

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
@@ -43,6 +42,7 @@ import {
   SubscriptionStatusSchema,
 } from "@/prisma/types";
 import { SubscriptionStatus } from "@prisma/client";
+import { useRouter } from "@/i18n/navigation";
 
 interface User {
   id: string;
@@ -236,7 +236,7 @@ export function SubscriptionForm({
                             {option.charAt(0).toUpperCase() +
                               option.slice(1).toLowerCase()}
                           </SelectItem>
-                        )
+                        ),
                       )}
                     </SelectContent>
                   </Select>

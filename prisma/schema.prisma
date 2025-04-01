@@ -35,18 +35,20 @@ model Profile {
 
   subscriptions Subscription? // One-to-Many: A user can have multiple subscriptions
   services      Service? // One-to-One: A user can have one service
+  createdAt     DateTime      @default(now())
 
   @@map("profile")
 }
 
 model Service {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @db.Text
-  date        DateTime @db.Timestamptz
-  images      Json // Array of image URLs
-  description String   @db.Text
-  userId      String   @unique @db.Uuid
-  user        Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String         @id @default(uuid()) @db.Uuid
+  name        String         @db.Text
+  date        DateTime       @db.Timestamptz
+  description String         @db.Text
+  userId      String         @unique @db.Uuid
+  user        Profile        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images      ServiceImage[]
+  createdAt   DateTime       @default(now())
 
   @@map("service")
 }
@@ -71,4 +73,11 @@ enum SubscriptionStatus {
 enum Role {
   admin
   user
+}
+
+model ServiceImage {
+  id        String  @id @default(uuid()) @db.Uuid
+  url       String
+  serviceId String  @db.Uuid
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 }

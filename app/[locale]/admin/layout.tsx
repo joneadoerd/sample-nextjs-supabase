@@ -1,31 +1,35 @@
-import type { ReactNode } from "react"
-import Link from "next/link"
-import { redirect } from "next/navigation"
-import { PrismaClient } from "@prisma/client"
-import { Home, Users, Calendar } from "lucide-react"
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { PrismaClient } from "@prisma/client";
+import { Home, Users, Calendar } from "lucide-react";
 
 // This is a mock auth check - in a real app, you'd use your auth system
 async function getUser() {
-  const prisma = new PrismaClient()
+  const prisma = new PrismaClient();
 
   try {
     // In a real app, you'd get the current user from your auth system
     const user = await prisma.profile.findFirst({
       where: { role: "admin" },
-    })
+    });
 
-    return user
+    return user;
   } catch (error) {
-    return null
+    return null;
   }
 }
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const user = await getUser()
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const user = await getUser();
 
   // If not an admin, redirect to home
   if (!user || user.role !== "admin") {
-    redirect("/")
+    redirect("/");
   }
 
   return (
@@ -37,7 +41,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <nav className="px-4 py-2">
           <ul className="space-y-1">
             <li>
-              <Link href="/admin" className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent">
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
+              >
                 <Home size={18} />
                 <span>Dashboard</span>
               </Link>
@@ -52,7 +59,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
               </Link>
             </li>
             <li>
-              <Link href="/admin/users" className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent">
+              <Link
+                href="/admin/users"
+                className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
+              >
                 <Users size={18} />
                 <span>Users</span>
               </Link>
@@ -62,6 +72,5 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       </aside>
       <main className="flex-1 p-6 overflow-auto">{children}</main>
     </div>
-  )
+  );
 }
-

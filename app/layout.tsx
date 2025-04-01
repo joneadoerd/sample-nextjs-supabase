@@ -1,12 +1,8 @@
-import DeployButton from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import HeaderAuth from "@/components/header-auth";
+
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { Link } from "@/i18n/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -43,12 +39,11 @@ export default async function RootLayout({
 
   // Enable static rendering
   setRequestLocale(locale);
-  let user = null
+  let user = null;
   try {
-     user = await getCurrentUserProfile()
-    
+    user = await getCurrentUserProfile();
   } catch (error) {
-    user = null
+    user = null;
   }
   // Providing all messages to the client
   // side is the easiest way to get started
@@ -65,12 +60,10 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-            <Header user={user} locale={locale} />
+              <Header user={user} locale={locale} />
             </nav>
 
-            <div>
-              {children}
-            </div>
+            <div>{children}</div>
             <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
               <p>
                 Powered by{" "}

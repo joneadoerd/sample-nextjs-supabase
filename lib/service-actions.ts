@@ -2,89 +2,41 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import type { ServiceWithUser } from "@/lib/types";
-import { mockUsers } from "@/lib/mock-data";
 import {
   Service,
-  ServicePartialRelations,
-  ServiceSchema,
+  ServiceOptionalDefaultsWithPartialRelations,
 } from "@/prisma/types";
 import { prisma } from "./db";
 import { getCurrentUserProfile } from "@/actions/user-actions";
-
-// Mock data for services
-const mockServices: ServiceWithUser[] = [
-  {
-    id: "1",
-    name: "Website Development",
-    date: new Date("2023-06-15"),
-    images: [
-      "/placeholder.svg?height=400&width=800&text=Website+Development+1",
-      "/placeholder.svg?height=400&width=800&text=Website+Development+2",
-      "/placeholder.svg?height=400&width=800&text=Website+Development+3",
-    ],
-    description:
-      "Professional website development services. I can create responsive, modern websites for your business or personal needs. Using the latest technologies like React, Next.js, and Tailwind CSS.",
-    price: 1200,
-    userId: "1",
-    user: mockUsers[0],
-  },
-  {
-    id: "2",
-    name: "Logo Design",
-    date: new Date("2023-07-22"),
-    images: [
-      "/placeholder.svg?height=400&width=800&text=Logo+Design+1",
-      "/placeholder.svg?height=400&width=800&text=Logo+Design+2",
-    ],
-    description:
-      "Creative logo design services. I'll create a unique and memorable logo that represents your brand identity. Includes multiple revisions and different file formats.",
-    price: 300,
-    userId: "2",
-    user: mockUsers[1],
-  },
-  {
-    id: "3",
-    name: "Social Media Management",
-    date: new Date("2023-08-10"),
-    images: [
-      "/placeholder.svg?height=400&width=800&text=Social+Media+1",
-      "/placeholder.svg?height=400&width=800&text=Social+Media+2",
-      "/placeholder.svg?height=400&width=800&text=Social+Media+3",
-    ],
-    description:
-      "Complete social media management for your business. I'll handle content creation, posting schedule, and engagement with your audience across multiple platforms.",
-    price: 500,
-    userId: "3",
-    user: mockUsers[2],
-  },
-];
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 // Get all services
 export async function getServices(): Promise<{
-  services?: ServiceWithUser[];
+  services?: ServiceOptionalDefaultsWithPartialRelations[];
   error?: string;
 }> {
-  // Simulate a delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
   try {
-    return { services: mockServices };
+    return {
+      services: await prisma.service.findMany({
+        include: { images: true, user: true },
+      }),
+    };
   } catch (error) {
-    console.error("Error fetching services:", error);
+    // console.error("Error fetching services:", error);
     return { error: "Failed to fetch services" };
   }
 }
 
 // Get a service by ID
-export async function getServiceById(
-  id: string
-): Promise<{ service?: ServiceWithUser; error?: string }> {
-  // Simulate a delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
+export async function getServiceById(id: string): Promise<{
+  service?: ServiceOptionalDefaultsWithPartialRelations;
+  error?: string;
+}> {
   try {
-    const service = mockServices.find((service) => service.id === id);
+    const service = await prisma.service.findUnique({
+      where: { userId: id },
+      include: { images: true, user: true },
+    });
 
     if (!service) {
       return { error: "Service not found" };
@@ -92,14 +44,14 @@ export async function getServiceById(
 
     return { service };
   } catch (error) {
-    console.error("Error fetching service:", error);
+    // console.error("Error fetching service:", error);
     return { error: "Failed to fetch service" };
   }
 }
 
 // Create a new service
 export async function createService(
-  data: Service
+  data: ServiceOptionalDefaultsWithPartialRelations
 ): Promise<{ service?: Service; error?: string }> {
   try {
     // Mock current user check - in a real app, this would use your auth system
@@ -112,20 +64,21 @@ export async function createService(
       };
     }
 
-    // Validate the data
-
-    const validatedData = data;
-
     // Log the data that would be saved
-    // console.log("Creating service:", validatedData)
+    // console.log("Creating service:", data)
     const newService = await prisma.service.create({
       data: {
-        name: validatedData.name,
-        date: validatedData.date,
-        images: validatedData.images || [],
-        description: validatedData.description,
-        userId: validatedData.userId,
+        images: {
+          create: data.images?.map((image) => ({
+            url: image.url ?? "/placeholder.svg?height=200&width=400",
+          })),
+        },
+        name: data.name,
+        date: data.date,
+        description: data.description,
+        userId: data.userId,
       },
+      include: { images: true },
     });
 
     // Revalidate the services page
@@ -133,7 +86,7 @@ export async function createService(
 
     const user = prisma.profile.findFirst({
       where: {
-        id: validatedData.userId,
+        id: data.userId,
       },
     });
     if (!user) {
@@ -142,7 +95,12 @@ export async function createService(
 
     return { service: newService };
   } catch (error) {
-    console.error("Error creating service:", error);
+    // console.error("Error creating service:", error);
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        return { error: "A service with this name already exists" };
+      }
+    }
 
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message };
@@ -153,36 +111,23 @@ export async function createService(
 }
 
 // Update an existing service
-export async function updateService(data: {
-  id: string;
-  name: string;
-  date: Date;
-  images: string[];
-  description: string;
-  userId: string;
-}): Promise<{ service?: ServiceWithUser; error?: string }> {
-  // Simulate a delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
+export async function updateService(
+  data: ServiceOptionalDefaultsWithPartialRelations
+): Promise<{ service?: Service; error?: string }> {
   try {
-    // Mock current user check - in a real app, this would use your auth system
-    const mockCurrentUser = {
-      id: "1",
-      role: "admin",
-    };
-
+    const currentUser = await getCurrentUserProfile();
     // Find the existing service
-    const existingService = mockServices.find(
-      (service) => service.id === data.id
-    );
+    const existingService = await prisma.service.findUnique({
+      where: { id: data.id },
+    });
     if (!existingService) {
       return { error: "Service not found" };
     }
 
     // Security check: Only admins or the service owner can update it
     if (
-      existingService.userId !== mockCurrentUser.id &&
-      mockCurrentUser.role !== "admin"
+      existingService.userId !== currentUser?.id &&
+      currentUser?.role !== "admin"
     ) {
       return { error: "Unauthorized: You can only update your own services" };
     }
@@ -190,48 +135,41 @@ export async function updateService(data: {
     // Security check: Only admins can change the service owner
     if (
       data.userId !== existingService.userId &&
-      mockCurrentUser.role !== "admin"
+      currentUser.role !== "admin"
     ) {
       return { error: "Unauthorized: You cannot change the service owner" };
     }
 
-    // Validate the data
-    const serviceSchema = z.object({
-      id: z.string(),
-      name: z.string().min(3),
-      date: z.date(),
-      images: z.array(z.string()),
-      description: z.string().min(10),
-      userId: z.string(),
+    const user = prisma.profile.findFirst({
+      where: {
+        id: data.userId,
+      },
     });
-
-    const validatedData = serviceSchema.parse(data);
-
-    // Log the data that would be saved
-    console.log("Updating service:", validatedData);
-
-    // Revalidate the services page
-    revalidatePath(`/services/${data.id}`);
-    revalidatePath("/services");
-
-    const user = mockUsers.find((user) => user.id === validatedData.userId);
     if (!user) {
       return { error: "User not found" };
     }
+    await prisma.serviceImage.deleteMany({ where: { serviceId: data.id } });
+    const update = await prisma.service.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        date: data.date,
+        images: {
+          create: data.images?.map((image) => ({
+            url: image.url ?? "/placeholder.svg?height=200&width=400",
+          })),
+        },
+        description: data.description,
+        userId: data.userId,
+      },
+      include: { images: true },
+    });
+    // Revalidate the services page
 
-    const updatedService = {
-      ...existingService,
-      name: validatedData.name,
-      date: validatedData.date,
-      images: validatedData.images,
-      description: validatedData.description,
-      userId: validatedData.userId,
-      user,
-    };
-
+    revalidatePath("/services");
     // In a real app, this would be handled by the database update
     // For our mock data, we'll just pretend it was updated
-    return { service: updatedService };
+    return { service: update };
   } catch (error) {
     console.error("Error updating service:", error);
 

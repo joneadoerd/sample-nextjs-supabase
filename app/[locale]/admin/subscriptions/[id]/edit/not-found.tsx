@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function SubscriptionNotFound() {
   return (
@@ -12,6 +12,5 @@ export default function SubscriptionNotFound() {
         <Link href="/admin/subscriptions">Back to Subscriptions</Link>
       </Button>
     </div>
-  )
+  );
 }
-

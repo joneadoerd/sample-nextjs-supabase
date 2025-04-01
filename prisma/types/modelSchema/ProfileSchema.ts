@@ -14,6 +14,7 @@ export const ProfileSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
+  createdAt: z.coerce.date(),
 })
 
 export type Profile = z.infer<typeof ProfileSchema>
@@ -33,6 +34,7 @@ export type ProfilePartial = z.infer<typeof ProfilePartialSchema>
 export const ProfileOptionalDefaultsSchema = ProfileSchema.merge(z.object({
   role: RoleSchema.optional(),
   name: z.string().optional(),
+  createdAt: z.coerce.date().optional(),
 }))
 
 export type ProfileOptionalDefaults = z.infer<typeof ProfileOptionalDefaultsSchema>

@@ -9,6 +9,7 @@
     "db:trigger": " dotenv -e .env.local -- npx tsx lib/seedTriggers.ts",
     "db:push": " dotenv -e .env.local -- npx prisma db push",
     "db:pull": " dotenv -e .env.local -- npx prisma db pull",
+    "format": "npx prettier --write {app,components}/**/*.{js,jsx,ts,tsx}",
     "db:studio": " dotenv -e .env.local -- npx prisma studio"
   },
   "dependencies": {

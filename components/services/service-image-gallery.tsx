@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ServiceImageGalleryProps {
-  images: string[]
+  images: string[];
 }
 
 export function ServiceImageGallery({ images }: ServiceImageGalleryProps) {
-  const [currentImage, setCurrentImage] = useState(0)
+  const [currentImage, setCurrentImage] = useState(0);
 
   // If no images, show placeholder
   if (images.length === 0) {
-    images = ["/placeholder.svg?height=400&width=800"]
+    images = ["/placeholder.svg?height=400&width=800"];
   }
 
   const nextImage = () => {
-    setCurrentImage((prev) => (prev + 1) % images.length)
-  }
+    setCurrentImage((prev) => (prev + 1) % images.length);
+  };
 
   const prevImage = () => {
-    setCurrentImage((prev) => (prev - 1 + images.length) % images.length)
-  }
+    setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
     <div className="relative rounded-lg overflow-hidden">
@@ -73,6 +73,5 @@ export function ServiceImageGallery({ images }: ServiceImageGalleryProps) {
         {currentImage + 1} / {images.length}
       </div>
     </div>
-  )
+  );
 }
-

@@ -1,88 +1,88 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { formatDistanceToNow } from "date-fns"
-import { Loader2, Send } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { addComment, getComments } from "@/lib/comment-actions"
-import { toast } from "sonner"
+import { useState, useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
+import { formatDistanceToNow } from "date-fns";
+import { Loader2, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { addComment, getComments } from "@/lib/comment-actions";
+import { toast } from "sonner";
 
 interface Comment {
-  id: string
-  content: string
-  createdAt: Date
+  id: string;
+  content: string;
+  createdAt: Date;
   user: {
-    id: string
-    name: string
-    image: string | null
-  }
+    id: string;
+    name: string;
+    image: string | null;
+  };
 }
 
 interface ServiceCommentsProps {
-  serviceId: string
+  serviceId: string;
 }
 
 export function ServiceComments({ serviceId }: ServiceCommentsProps) {
-  const router = useRouter()
-  const [comments, setComments] = useState<Comment[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [comment, setComment] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [comment, setComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock user for demo purposes
   const currentUser = {
     id: "current-user",
     name: "Current User",
     image: null,
-  }
+  };
 
   // Fetch comments on component mount
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const fetchedComments = await getComments(serviceId)
-        setComments(fetchedComments)
+        const fetchedComments = await getComments(serviceId);
+        setComments(fetchedComments);
       } catch (error) {
-        console.error("Failed to fetch comments:", error)
-        toast.error("Failed to load comments. Please try again.")
+        console.error("Failed to fetch comments:", error);
+        toast.error("Failed to load comments. Please try again.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchComments()
-  }, [serviceId])
+    fetchComments();
+  }, [serviceId]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!comment.trim()) return
+    if (!comment.trim()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const newComment = await addComment({
         serviceId,
         content: comment,
         userId: currentUser.id,
-      })
+      });
 
-      setComments((prev) => [newComment, ...prev])
-      setComment("")
-      toast.success("Your comment has been added successfully.")
-      router.refresh()
+      setComments((prev) => [newComment, ...prev]);
+      setComment("");
+      toast.success("Your comment has been added successfully.");
+      router.refresh();
     } catch (error) {
-      console.error("Failed to add comment:", error)
-      toast.error("Failed to add your comment. Please try again.")
+      console.error("Failed to add comment:", error);
+      toast.error("Failed to add your comment. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -92,7 +92,9 @@ export function ServiceComments({ serviceId }: ServiceCommentsProps) {
         <div className="flex gap-4">
           <Avatar className="h-10 w-10">
             <AvatarImage src={currentUser.image || ""} alt={currentUser.name} />
-            <AvatarFallback>{currentUser.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>
+              {currentUser.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <Textarea
@@ -126,19 +128,28 @@ export function ServiceComments({ serviceId }: ServiceCommentsProps) {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : comments.length === 0 ? (
-          <p className="text-center py-8 text-muted-foreground">No comments yet. Be the first to comment!</p>
+          <p className="text-center py-8 text-muted-foreground">
+            No comments yet. Be the first to comment!
+          </p>
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="flex gap-4">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={comment.user.image || ""} alt={comment.user.name} />
-                <AvatarFallback>{comment.user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarImage
+                  src={comment.user.image || ""}
+                  alt={comment.user.name}
+                />
+                <AvatarFallback>
+                  {comment.user.name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <h4 className="font-medium">{comment.user.name}</h4>
                   <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(comment.createdAt), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
                 <p className="mt-1 text-muted-foreground">{comment.content}</p>
@@ -148,6 +159,5 @@ export function ServiceComments({ serviceId }: ServiceCommentsProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
-

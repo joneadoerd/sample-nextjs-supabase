@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Dialog,
@@ -7,24 +7,30 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface DeleteConfirmDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: () => void
-  userName: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  userName: string;
 }
 
-export function DeleteConfirmDialog({ open, onOpenChange, onConfirm, userName }: DeleteConfirmDialogProps) {
+export function DeleteConfirmDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  userName,
+}: DeleteConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete {userName}? This action cannot be undone.
+            Are you sure you want to delete {userName}? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex space-x-2 sm:space-x-0">
@@ -37,6 +43,5 @@ export function DeleteConfirmDialog({ open, onOpenChange, onConfirm, userName }:
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

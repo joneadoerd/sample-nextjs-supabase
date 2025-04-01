@@ -2,8 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { CalendarIcon, Loader2, Plus, X } from "lucide-react";
@@ -38,8 +38,8 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { serviceSchema, type ServiceFormValues } from "@/lib/service-schema";
 import { createService } from "@/lib/service-actions";
-import { mockUsers } from "@/lib/mock-data";
 import { Profile } from "@/prisma/types";
+import { getAllUsers } from "@/actions/user-actions";
 
 // Mock current user - in a real app, this would be fetched from your auth system
 // const mockCurrentUser = {
@@ -58,9 +58,20 @@ export default function AddServiceForm({
   const [images, setImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [users, setUsers] = useState<Profile[]>([]);
   const isAdminUser = currentUser.role === "admin";
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const users = await getAllUsers();
+        setUsers(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
   // Initialize the form
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
@@ -69,7 +80,7 @@ export default function AddServiceForm({
       description: "",
       date: new Date(),
       images: [],
-      userId: isAdminUser ? "" : currentUser.id, // Set current user ID for non-admin users
+      userId: currentUser.id, // Set current user ID for non-admin users
     },
   });
 
@@ -103,31 +114,23 @@ export default function AddServiceForm({
     try {
       setIsSubmitting(true);
 
-      // In a real app, you would upload the images to a storage service
-      // and get back URLs to store in the database
-      const imageUrlsToSave = images.map(
-        (_, index) => `https://example.com/image-${index}.jpg`
-      );
-
       // Create service
       const result = await createService({
         name: data.name,
         date: data.date,
-        images: imageUrlsToSave,
+        images: imageUrls.map((url) => ({ url })),
         description: data.description,
-        userId: isAdminUser ? data.userId! : currentUser.id, // Use selected user for admin, current user for others
+        userId: isAdminUser ? data.userId || currentUser.id : currentUser.id, // Use selected user for admin, current user for others
       });
 
       if (result.error) {
         toast.error(result.error);
         return;
       }
-
       toast.success("Service created successfully");
 
       // Redirect to the services page
       router.push("/services");
-      router.refresh();
     } catch (error) {
       console.error("Error creating service:", error);
       toast.error(
@@ -287,7 +290,7 @@ export default function AddServiceForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockUsers.map((user) => (
+                        {users.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.name} ({user.email})
                           </SelectItem>

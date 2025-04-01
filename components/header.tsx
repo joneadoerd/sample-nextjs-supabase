@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Menu,
   Globe,
@@ -33,6 +31,8 @@ import { useTheme } from "next-themes";
 import { signOutAction } from "@/actions/auth-actions";
 import { Profile } from "@/prisma/types";
 import { routing } from "@/i18n/routing";
+import { getServiceById } from "@/lib/service-actions";
+import { Link, useRouter } from "@/i18n/navigation";
 
 // Mock user data - in a real app, this would come from your auth system
 const mockUser = {
@@ -135,7 +135,7 @@ export function Header({
                 className="relative h-8 w-8 rounded-full hidden sm:flex"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={mockUser.image} alt={user?.name || ""} />
+                  <AvatarImage alt={user?.name || ""} />
                   <AvatarFallback>
                     {user ? user?.name.substring(0, 2).toUpperCase() : "LO"}
                   </AvatarFallback>
@@ -157,7 +157,15 @@ export function Header({
                 <span>Edit Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => router.push(`/services/${user?.id}`)}
+                onClick={async () => {
+                  const { service } = await getServiceById(user?.id || "");
+                  // console.log(service)
+                  if (service) {
+                    router.push(`/services/${user?.id}/edit`);
+                  } else {
+                    router.push(`/services/${user?.id}/add`);
+                  }
+                }}
               >
                 <Server className="mr-2 h-4 w-4" />
                 <span>My Service</span>
@@ -223,7 +231,7 @@ export function Header({
                 <div className="mt-auto border-t pt-4">
                   <div className="flex items-center gap-4 mb-4">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={mockUser.image} alt={user?.name} />
+                      <AvatarImage alt={user?.name} />
                       <AvatarFallback>
                         {user?.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
