@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { getSubscription, getUsers } from "@/lib/subscription-actions";
-import { SubscriptionForm } from "@/components/subscription-form";
+import { getSubscription } from "@/lib/subscription-actions";
+import { SubscriptionForm } from "@/components/subscriptions/subscription-form";
+import { getAllUsers } from "@/actions/user-actions";
 
 interface EditSubscriptionPageProps {
   id: string;
@@ -13,7 +14,7 @@ export default async function EditSubscriptionPage({
 }) {
   const { id } = await params;
   const { subscription, error: subscriptionError } = await getSubscription(id);
-  const { users, error: usersError } = await getUsers();
+  const { users, error: usersError } = await getAllUsers();
 
   if (subscriptionError || !subscription) {
     notFound();

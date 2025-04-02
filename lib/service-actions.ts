@@ -5,6 +5,8 @@ import { z } from "zod";
 import {
   Service,
   ServiceOptionalDefaultsWithPartialRelations,
+  SubscriptionPartialSchema,
+  SubscriptionStatusSchema,
 } from "@/prisma/types";
 import { prisma } from "./db";
 import { getCurrentUserProfile } from "@/actions/user-actions";
@@ -26,6 +28,32 @@ export async function getServices(): Promise<{
     return { error: "Failed to fetch services" };
   }
 }
+// Get all services
+export async function getAllActiveServices(): Promise<{
+  services?: ServiceOptionalDefaultsWithPartialRelations[];
+  error?: string;
+}> {
+  try {
+    return {
+      services:  await prisma.service.findMany({
+        where: {
+          user: {
+            subscriptions: {
+              status_subscription: SubscriptionStatusSchema.Enum.ACTIVE, // Filter for active subscriptions
+            },
+          },
+        },
+        include: {
+          user: true, // Include user details
+          images: true, // Include service images
+        },
+      })
+    };
+  } catch (error) {
+    // console.error("Error fetching services:", error);
+    return { error: "Failed to fetch active services"};
+  }
+}
 
 // Get a service by ID
 export async function getServiceById(id: string): Promise<{
@@ -34,7 +62,7 @@ export async function getServiceById(id: string): Promise<{
 }> {
   try {
     const service = await prisma.service.findUnique({
-      where: { userId: id },
+      where: { id },
       include: { images: true, user: true },
     });
 
@@ -48,7 +76,26 @@ export async function getServiceById(id: string): Promise<{
     return { error: "Failed to fetch service" };
   }
 }
+export async function getServiceByUserId(id: string): Promise<{
+  service?: ServiceOptionalDefaultsWithPartialRelations;
+  error?: string;
+}> {
+  try {
+    const service = await prisma.service.findUnique({
+      where: {userId: id },
+      include: { images: true, user: true },
+    });
 
+    if (!service) {
+      return { error: "Service not found" };
+    }
+
+    return { service };
+  } catch (error) {
+    // console.error("Error fetching service:", error);
+    return { error: "Failed to fetch service" };
+  }
+}
 // Create a new service
 export async function createService(
   data: ServiceOptionalDefaultsWithPartialRelations
@@ -107,6 +154,15 @@ export async function createService(
     }
 
     return { error: "Failed to create service" };
+  }
+}
+export async function createOrUpdateService(
+  data: ServiceOptionalDefaultsWithPartialRelations
+) {
+  if (data.id) {
+    return await updateService(data);
+  } else {
+    return await createService(data);
   }
 }
 

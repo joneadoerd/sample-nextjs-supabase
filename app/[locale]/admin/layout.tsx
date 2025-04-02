@@ -1,35 +1,30 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { PrismaClient } from "@prisma/client";
 import { Home, Users, Calendar } from "lucide-react";
+import { getCurrentUserProfile } from "@/actions/user-actions";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
 // This is a mock auth check - in a real app, you'd use your auth system
-async function getUser() {
-  const prisma = new PrismaClient();
-
-  try {
-    // In a real app, you'd get the current user from your auth system
-    const user = await prisma.profile.findFirst({
-      where: { role: "admin" },
-    });
-
-    return user;
-  } catch (error) {
-    return null;
-  }
-}
 
 export default async function AdminLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const user = await getUser();
+  let user = null;
+  try {
+    user = await getCurrentUserProfile();
+  } catch (error) {
+    user = null;
+  }
 
   // If not an admin, redirect to home
   if (!user || user.role !== "admin") {
-    redirect("/");
+    return redirect({
+      href: "/",
+      locale: await getLocale(),
+    });
   }
 
   return (

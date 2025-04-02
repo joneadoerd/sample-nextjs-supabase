@@ -6,11 +6,11 @@ import {
   Globe,
   User,
   LogOut,
-  Settings,
   Moon,
   Sun,
   Server,
   LogIn,
+  SquareDashedBottomCodeIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -31,13 +31,8 @@ import { useTheme } from "next-themes";
 import { signOutAction } from "@/actions/auth-actions";
 import { Profile } from "@/prisma/types";
 import { routing } from "@/i18n/routing";
-import { getServiceById } from "@/lib/service-actions";
+import { getServiceByUserId } from "@/lib/service-actions";
 import { Link, useRouter } from "@/i18n/navigation";
-
-// Mock user data - in a real app, this would come from your auth system
-const mockUser = {
-  image: "/placeholder.svg?height=40&width=40",
-};
 
 // Available languages
 
@@ -51,7 +46,7 @@ export function Header({
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [currentLanguage, setCurrentLanguage] = useState(locale);
-
+  const isAdmin = user?.role === "admin";
   const handleLanguageChange = (langCode: string) => {
     setCurrentLanguage(langCode);
     // In a real app, you would update the app's locale/language here
@@ -158,7 +153,7 @@ export function Header({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={async () => {
-                  const { service } = await getServiceById(user?.id || "");
+                  const { service } = await getServiceByUserId(user?.id || "");
                   // console.log(service)
                   if (service) {
                     router.push(`/services/${user?.id}/edit`);
@@ -170,10 +165,12 @@ export function Header({
                 <Server className="mr-2 h-4 w-4" />
                 <span>My Service</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem onClick={() => router.push("/admin")}>
+                  <SquareDashedBottomCodeIcon className="mr-2 h-4 w-4" />
+                  <span>Admin Settings</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 {user ? (
@@ -226,6 +223,12 @@ export function Header({
                   >
                     My Service
                   </Button>
+                  {isAdmin && (
+                    <Button onClick={() => router.push("/admin")}>
+                      <SquareDashedBottomCodeIcon className="mr-2 h-4 w-4" />
+                      Admin Settings
+                    </Button>
+                  )}
                 </nav>
 
                 <div className="mt-auto border-t pt-4">

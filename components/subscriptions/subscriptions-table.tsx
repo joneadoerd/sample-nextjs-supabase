@@ -33,10 +33,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { deleteSubscription } from "@/lib/subscription-actions";
-import type { Subscription } from "@/lib/types";
+import { SubscriptionWithPartialRelations } from "@/prisma/types";
 
 interface SubscriptionsTableProps {
-  subscriptions: Subscription[];
+  subscriptions: SubscriptionWithPartialRelations[];
 }
 
 export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
@@ -108,9 +108,9 @@ export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
                 <TableRow key={subscription.id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{subscription.user.name}</p>
+                      <p className="font-medium">{subscription?.user?.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {subscription.user.email}
+                        {subscription?.user?.email}
                       </p>
                     </div>
                   </TableCell>

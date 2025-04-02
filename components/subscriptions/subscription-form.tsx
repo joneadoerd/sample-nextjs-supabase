@@ -4,7 +4,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -35,23 +35,16 @@ import {
   updateSubscription,
 } from "@/lib/subscription-actions";
 import {
-  Subscription,
+  Profile,
   SubscriptionOptionalDefaults,
-  SubscriptionPartial,
-  SubscriptionSchema,
+  SubscriptionOptionalDefaultsSchema,
+  SubscriptionPartialSchema,
   SubscriptionStatusSchema,
 } from "@/prisma/types";
-import { SubscriptionStatus } from "@prisma/client";
 import { useRouter } from "@/i18n/navigation";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
 interface SubscriptionFormProps {
-  users: User[];
+  users: Profile[];
   initialData?: SubscriptionOptionalDefaults;
 }
 
@@ -64,14 +57,13 @@ export function SubscriptionForm({
 
   const isEditMode = !!initialData;
 
-  const form = useForm<Subscription>({
-    resolver: zodResolver(SubscriptionSchema),
+  const form = useForm<SubscriptionOptionalDefaults>({
+    resolver: zodResolver(SubscriptionOptionalDefaultsSchema),
     defaultValues: initialData,
   });
 
-  const onSubmit = async (data: Subscription) => {
-    setIsSubmitting(true);
-
+  const onSubmit = async (data: SubscriptionOptionalDefaults) => {
+    // setIsSubmitting(true);
     try {
       if (isEditMode) {
         const result = await updateSubscription(data);
@@ -257,10 +249,7 @@ export function SubscriptionForm({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {isEditMode ? "Update" : "Create"} Subscription
+              Subscription
             </Button>
           </CardFooter>
         </form>

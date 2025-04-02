@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ServiceCard } from "@/components/services/service-card";
-import { getServices } from "@/lib/service-actions";
+import { getAllActiveServices } from "@/lib/service-actions";
 import { ServiceWithRelations } from "@/prisma/types";
 import { isAdmin } from "@/actions/checkAdmin";
 import { Link } from "@/i18n/navigation";
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ServicesPage() {
-  const { services } = await getServices();
+  const { services } = await getAllActiveServices();
   const isUserAdmin = await isAdmin();
   return (
     <div className="container py-10">

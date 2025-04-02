@@ -4,8 +4,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { prisma } from "./db";
-import { Subscription } from "./types";
-import { SubscriptionPartial, SubscriptionSchema } from "@/prisma/types";
+import {
+  SubscriptionOptionalDefaultsWithPartialRelations,
+  SubscriptionPartial,
+  SubscriptionPartialSchema,
+  SubscriptionSchema,
+} from "@/prisma/types";
 
 export async function getSubscriptions() {
   try {
@@ -42,28 +46,13 @@ export async function getSubscription(id: string) {
   }
 }
 
-export async function getUsers() {
-  try {
-    const users = await prisma.profile.findMany({
-      orderBy: {
-        name: "asc",
-      },
-    });
-    return { users };
-  } catch (error) {
-    return { error: "Failed to fetch users" };
-  }
-}
-
 export async function createSubscription(
-  formData: SubscriptionPartial
+  formData: SubscriptionOptionalDefaultsWithPartialRelations
 ) {
   try {
-    const validatedFields = SubscriptionSchema.parse(formData);
-
     // Check if user already has a subscription
     const existingSubscription = await prisma.subscription.findUnique({
-      where: { userId: validatedFields.userId },
+      where: { userId: formData.userId },
     });
 
     if (existingSubscription) {
@@ -72,10 +61,10 @@ export async function createSubscription(
 
     await prisma.subscription.create({
       data: {
-        start_date: validatedFields.start_date,
-        expire_date: validatedFields.expire_date,
-        status_subscription: validatedFields.status_subscription,
-        userId: validatedFields.userId,
+        start_date: formData.start_date,
+        expire_date: formData.expire_date,
+        status_subscription: formData.status_subscription,
+        userId: formData.userId,
       },
     });
 
@@ -90,17 +79,15 @@ export async function createSubscription(
 }
 
 export async function updateSubscription(
-  formData: SubscriptionPartial
+  formData: SubscriptionOptionalDefaultsWithPartialRelations
 ) {
   try {
-    const validatedFields = SubscriptionSchema.parse(formData);
-
     await prisma.subscription.update({
-      where: { id: validatedFields.id },
+      where: { id: formData.id },
       data: {
-        start_date: validatedFields.start_date,
-        expire_date: validatedFields.expire_date,
-        status_subscription: validatedFields.status_subscription,
+        start_date: formData.start_date,
+        expire_date: formData.expire_date,
+        status_subscription: formData.status_subscription,
       },
     });
 

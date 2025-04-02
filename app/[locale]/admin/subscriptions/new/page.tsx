@@ -1,12 +1,12 @@
-import { getUsers } from "@/lib/subscription-actions";
-import { SubscriptionForm } from "@/components/subscription-form";
+import { getAllUsers } from "@/actions/user-actions";
+import { SubscriptionForm } from "@/components/subscriptions/subscription-form";
 
 export const metadata = {
   title: "Add Subscription | Admin Dashboard",
 };
 
 export default async function NewSubscriptionPage() {
-  const { users, error } = await getUsers();
+  const { users, error } = await getAllUsers();
 
   if (error) {
     return (

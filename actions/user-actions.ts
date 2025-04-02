@@ -8,10 +8,9 @@ import { Profile } from "@/prisma/types";
 
 // Get Supabase instance
 
-
 // 🟢 Get Current User Profile
 export async function getCurrentUserProfile() {
-   const supabase = await createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error,
@@ -30,21 +29,27 @@ export async function getCurrentUserProfile() {
 
 // 🔵 Get All Users (Admin Only)
 export async function getAllUsers() {
-  if (! await isAdmin()) throw new Error("Access Denied");
+  if (!(await isAdmin())) throw new Error("Access Denied");
 
-  return await prisma.profile.findMany();
+  try {
+    const users = await prisma.profile.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
+    return { users };
+  } catch (error) {
+    return { error: "Failed to fetch users" };
+  }
 }
 
 // 🟠 Create a New User (Admin Only)
-export async function createUser(user:Profile) {
+export async function createUser(user: Profile) {
   const supabase = await createClient();
-  const {
-    error,
-    data
-  } = await supabase.auth.admin.createUser(user);
+  const { error, data } = await supabase.auth.admin.createUser(user);
   await prisma.profile.update({
     where: { id: data.user?.id },
-    data:  user
+    data: user,
   });
   revalidatePath("/");
 
@@ -54,12 +59,12 @@ export async function createUser(user:Profile) {
 }
 
 // 🟡 Update User Role (Admin Only)
-export async function updateUser(user:Profile) {
-  if (! await isAdmin()) throw new Error("Access Denied");
+export async function updateUser(user: Profile) {
+  if (!(await isAdmin())) throw new Error("Access Denied");
 
   const updatedUser = await prisma.profile.update({
     where: { id: user.id },
-    data:  user,
+    data: user,
   });
   revalidatePath("/");
   return updatedUser;
@@ -67,7 +72,7 @@ export async function updateUser(user:Profile) {
 
 // 🔴 Delete User (Admin Only)
 export async function deleteUser(userId: string) {
-  if (! await isAdmin()) throw new Error("Access Denied");
+  if (!(await isAdmin())) throw new Error("Access Denied");
 
   const deletedUser = await prisma.profile.delete({
     where: { id: userId },

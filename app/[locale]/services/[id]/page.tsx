@@ -24,7 +24,6 @@ export default async function ServicePage({
   const canEdit =
     currentUser?.role === "admin" ||
     (service && service.userId === currentUser?.id);
-
   if (!service) {
     redirect(`/services/${currentUser?.id}/add`);
   }
@@ -37,7 +36,7 @@ export default async function ServicePage({
             <h1 className="text-3xl font-bold">{service.name}</h1>
             {canEdit && (
               <Button asChild variant="outline" size="sm">
-                <Link href={`/services/${service.id}/edit`}>
+                <Link href={`/services/${service?.userId}/edit`}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Service
                 </Link>

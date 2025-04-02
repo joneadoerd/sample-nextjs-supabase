@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SubscriptionsTable } from "@/components/subscriptions-table";
+import { SubscriptionsTable } from "@/components/subscriptions/subscriptions-table";
 import { getSubscriptions } from "@/lib/subscription-actions";
 
 export const metadata = {
