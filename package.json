@@ -10,7 +10,9 @@
     "db:push": " dotenv -e .env.local -- npx prisma db push",
     "db:pull": " dotenv -e .env.local -- npx prisma db pull",
     "format": "npx prettier --write {app,components}/**/*.{js,jsx,ts,tsx}",
-    "db:studio": " dotenv -e .env.local -- npx prisma studio"
+    "db:studio": " dotenv -e .env.local -- npx prisma studio",
+    "postinstall": "prisma generate"
+
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
