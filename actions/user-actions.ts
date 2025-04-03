@@ -17,7 +17,7 @@ export async function getCurrentUserProfile() {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    throw new Error("Unauthorized: No user found");
+    return null;
   }
 
   const profile = await prisma.profile.findUnique({

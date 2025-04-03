@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
+import { revalidatePath } from "next/cache";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -32,6 +33,7 @@ export const signUpAction = async (formData: FormData) => {
     console.error(error.code + " " + error.message);
     return encodedRedirect("error", "/sign-up", error.message);
   } else {
+    revalidatePath("/");
     return encodedRedirect(
       "success",
       "/sign-up",
@@ -53,6 +55,7 @@ export const signInAction = async (formData: FormData) => {
   if (error) {
     return encodedRedirect("error", "/sign-in", error.message);
   }
+  revalidatePath("/");
   const locale = await getLocale();
   return redirect({ href: "/", locale: locale });
 };
@@ -79,7 +82,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
       "Could not reset password"
     );
   }
-
+  revalidatePath("/");
   if (callbackUrl) {
     const locale = await getLocale();
     return redirect({ href: callbackUrl, locale: locale });
@@ -125,7 +128,7 @@ export const resetPasswordAction = async (formData: FormData) => {
       "Password update failed"
     );
   }
-
+  revalidatePath("/");
   await encodedRedirect("success", "/reset-password", "Password updated");
 };
 
@@ -134,6 +137,7 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
 
   const locale = await getLocale();
+  revalidatePath("/");
   return redirect({
     href: "/sign-in",
     locale: locale,

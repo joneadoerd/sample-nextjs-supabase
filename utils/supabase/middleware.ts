@@ -1,13 +1,14 @@
 import { routing } from "@/i18n/routing";
 import { createServerClient } from "@supabase/ssr";
-import { getLocale } from "next-intl/server";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const publicRoutes: string[] = [
   "/",
   "/sign-in",
-  "forgot-password",
-  "sign-up",
+  "/forgot-password",
+  "/sign-up",
+  "/services",
+  "/services/([^/]+)$",// Matches /services/[id], but not /services/[id]/add
 ];
 
 export const updateSession = async (
