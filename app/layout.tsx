@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/header";
 import { getCurrentUserProfile } from "@/actions/user-actions";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react"
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -57,6 +58,7 @@ export default async function RootLayout({
       >
         <body className="bg-background text-foreground">
           <SpeedInsights />
+          <Analytics/>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

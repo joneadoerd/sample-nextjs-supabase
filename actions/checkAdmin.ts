@@ -12,7 +12,7 @@ export async function isAdmin() {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    console.error("Error fetching user:", error);
+    // console.error("Error fetching user:", error);
     return false; // User is not logged in
   }
 
