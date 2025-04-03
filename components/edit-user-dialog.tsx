@@ -20,13 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Profile, RoleSchema } from "@/prisma/types";
+import { ProfileOptionalDefaults, RoleSchema } from "@/prisma/types";
 
 interface EditUserDialogProps {
-  user: Profile | null;
+  user: ProfileOptionalDefaults | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (user: Profile) => void;
+  onUpdate: (user: ProfileOptionalDefaults) => void;
   isCreating?: boolean;
 }
 
@@ -37,7 +37,7 @@ export function EditUserDialog({
   onUpdate,
   isCreating = false,
 }: EditUserDialogProps) {
-  const [formData, setFormData] = useState<Profile>({
+  const [formData, setFormData] = useState<ProfileOptionalDefaults>({
     id: "",
     name: "",
     email: "",
@@ -59,7 +59,10 @@ export function EditUserDialog({
     }
   }, [user, isCreating, open]);
 
-  const handleChange = (field: keyof Profile, value: string) => {
+  const handleChange = (
+    field: keyof ProfileOptionalDefaults,
+    value: string,
+  ) => {
     setFormData({ ...formData, [field]: value });
   };
 

@@ -15,10 +15,11 @@ import { EditUserDialog } from "@/components/edit-user-dialog";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { toast } from "sonner";
 import { createUser, updateUser, deleteUser } from "@/actions/user-actions";
-import { Profile } from "@/prisma/types";
+import { ProfileOptionalDefaults } from "@/prisma/types";
 
-export function UsersTable({ users }: { users: Profile[] }) {
-  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+export function UsersTable({ users }: { users: ProfileOptionalDefaults[] }) {
+  const [selectedUser, setSelectedUser] =
+    useState<ProfileOptionalDefaults | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
@@ -32,7 +33,7 @@ export function UsersTable({ users }: { users: Profile[] }) {
   };
 
   // 🟡 Handle Edit User
-  const handleEdit = (user: Profile) => {
+  const handleEdit = (user: ProfileOptionalDefaults) => {
     setSelectedUser(user);
     setIsCreating(false);
     setIsDialogOpen(true);
@@ -61,7 +62,7 @@ export function UsersTable({ users }: { users: Profile[] }) {
   };
 
   // 🟣 Handle User Update (Create/Edit)
-  const handleUpdateUser = async (updatedUser: Profile) => {
+  const handleUpdateUser = async (updatedUser: ProfileOptionalDefaults) => {
     try {
       if (isCreating) {
         await createUser(updatedUser);

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { isAdmin } from "./checkAdmin";
-import { Profile } from "@/prisma/types";
+import { ProfileOptionalDefaults } from "@/prisma/types";
 
 // Get Supabase instance
 
@@ -44,7 +44,7 @@ export async function getAllUsers() {
 }
 
 // 🟠 Create a New User (Admin Only)
-export async function createUser(user: Profile) {
+export async function createUser(user: ProfileOptionalDefaults) {
   const supabase = await createClient();
   const { error, data } = await supabase.auth.admin.createUser(user);
   await prisma.profile.update({
@@ -59,7 +59,7 @@ export async function createUser(user: Profile) {
 }
 
 // 🟡 Update User Role (Admin Only)
-export async function updateUser(user: Profile) {
+export async function updateUser(user: ProfileOptionalDefaults) {
   if (!(await isAdmin())) throw new Error("Access Denied");
 
   const updatedUser = await prisma.profile.update({
