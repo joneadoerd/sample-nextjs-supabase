@@ -33,6 +33,8 @@ import { Profile } from "@/prisma/types";
 import { routing } from "@/i18n/routing";
 import { getServiceByUserId } from "@/lib/service-actions";
 import { Link, useRouter } from "@/i18n/navigation";
+import { LangSelector } from "./language-switcher";
+import { Select } from "./ui/select";
 
 // Available languages
 
@@ -44,10 +46,13 @@ export function Header({
   locale: string;
 }) {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const {systemTheme, theme, setTheme} = useTheme();
+  const currentTheme = theme === "system" ? systemTheme : theme;
   const [currentLanguage, setCurrentLanguage] = useState(locale);
   const isAdmin = user?.role === "admin";
   const handleLanguageChange = (langCode: string) => {
+    document.cookie = `NEXT_LOCALE=${langCode}; path=/; max-age=31536000; SameSite=Lax`;
+    router.refresh();
     setCurrentLanguage(langCode);
     // In a real app, you would update the app's locale/language here
   };
@@ -90,31 +95,12 @@ export function Header({
         {/* User Menu, Language Selector, and Theme Toggle */}
         <div className="flex items-center gap-4">
           {/* Language Selector */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="hidden sm:flex">
-                <Globe className="h-5 w-5" />
-                <span className="sr-only">Select language</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {routing.locales.map((lang) => (
-                <DropdownMenuItem
-                  key={lang}
-                  onClick={() => handleLanguageChange(lang)}
-                  className={currentLanguage === lang ? "bg-accent" : ""}
-                >
-                  {lang}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
+          <LangSelector/>
           {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
             className="hidden sm:flex"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -282,17 +268,7 @@ export function Header({
                       <Globe className="h-4 w-4" />
                       <span className="text-sm">Language</span>
                     </div>
-                    <select
-                      value={currentLanguage}
-                      onChange={(e) => handleLanguageChange(e.target.value)}
-                      className="bg-transparent border rounded px-2 py-1 text-sm"
-                    >
-                      {routing.locales.map((lang) => (
-                        <option key={lang} value={lang}>
-                          {lang}
-                        </option>
-                      ))}
-                    </select>
+                    <LangSelector isMobile={true} />
                   </div>
 
                   <div className="flex items-center justify-between mt-4">
@@ -305,7 +281,7 @@ export function Header({
                       <span className="text-sm">Theme</span>
                     </div>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() =>
                         setTheme(theme === "dark" ? "light" : "dark")
