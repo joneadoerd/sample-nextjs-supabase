@@ -8,7 +8,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/header";
 import { getCurrentUserProfile } from "@/actions/user-actions";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -50,8 +50,13 @@ export default async function RootLayout({
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
-      <html lang="en" className={geistSans.className} suppressHydrationWarning>
+      <html
+        lang={locale}
+        className={geistSans.className}
+        suppressHydrationWarning
+      >
         <body className="bg-background text-foreground">
+          <SpeedInsights />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
