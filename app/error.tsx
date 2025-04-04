@@ -42,7 +42,15 @@ export default function Error({ error, reset }: ErrorProps) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Go Back
           </Button>
-          <Button onClick={reset} className="flex-1">
+          <Button
+            onClick={() => {
+              // Ensure reset is called properly
+              if (typeof reset === "function") {
+                reset()
+              }
+            }}
+            className="flex-1"
+          >
             <RefreshCw className="mr-2 h-4 w-4" />
             Try Again
           </Button>

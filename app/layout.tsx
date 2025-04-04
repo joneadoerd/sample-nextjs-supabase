@@ -14,7 +14,7 @@ import Loading from "./loading";
 import { Header } from "@/components/header";
 
 export const metadata = {
-  title: "Home",
+  title: "Services Store",
   description: " My Portfolio",
 };
 
@@ -57,7 +57,7 @@ export default async function RootLayout({
               <Header user={user} />
             </nav>
 
-            <Suspense fallback={<Loading />}>{children}</Suspense>
+            <div>{children}</div>
             <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
               <p>
                 Powered by{" "}

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { createClient } from "@/utils/supabase/server";
 
 export async function isAdmin() {
- const supabase = await createClient();
+  const supabase = await createClient();
 
   // Get the authenticated user
   const {
@@ -17,10 +17,13 @@ export async function isAdmin() {
   }
 
   // Check the role in the database using Prisma
-  const profile = await prisma.profile.findUnique({
-    where: { id: user.id },
-    select: { role: true },
-  });
-
-  return profile?.role === "admin"; // Returns true if admin, otherwise false
+  try {
+    const profile = await prisma.profile.findUnique({
+      where: { id: user.id },
+    });
+    return profile?.role === "admin"; // Returns true if admin, otherwise false
+  } catch (error) {
+    console.error("Error fetching checkAdmin:", error);
+    return false;
+  }
 }

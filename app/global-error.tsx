@@ -32,7 +32,14 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               </div>
             </CardContent>
             <CardFooter className="flex justify-center">
-              <Button onClick={reset}>
+              <Button
+                onClick={() => {
+                  // Ensure reset is called properly
+                  if (typeof reset === "function") {
+                    reset()
+                  }
+                }}
+              >
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Reload Application
               </Button>

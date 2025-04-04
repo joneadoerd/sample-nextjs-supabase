@@ -21,6 +21,7 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
+
   const handleLogout = async () => {
     await signOutAction();
   };
