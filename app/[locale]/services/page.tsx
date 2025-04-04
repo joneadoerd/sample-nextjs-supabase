@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { ServiceCard } from "@/components/services/service-card";
-import { getAllActiveServices } from "@/lib/service-actions";
-import { ServiceWithRelations } from "@/prisma/types";
 import { isAdmin } from "@/actions/checkAdmin";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import { ServiceList } from "./ServiceList";
+import Loading from "./loading";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ServicesPage() {
-  const { services } = await getAllActiveServices();
   const isUserAdmin = await isAdmin();
   return (
     <div className="container py-10">
@@ -24,23 +23,9 @@ export default async function ServicesPage() {
           </Button>
         )}
       </div>
-      {services?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <h2 className="text-xl font-semibold mb-2">No services found</h2>
-          <p className="text-muted-foreground mb-6">
-            Be the first to add a service!
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services?.map((service) => (
-            <ServiceCard
-              key={service.id}
-              service={service as ServiceWithRelations}
-            />
-          ))}
-        </div>
-      )}
+      <Suspense fallback={<Loading />}>
+        <ServiceList />
+      </Suspense>
     </div>
   );
 }
