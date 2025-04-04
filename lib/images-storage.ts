@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
+import { prisma } from "./db";
 
 export const uploadImage = async (
   files: File[],
@@ -31,4 +32,22 @@ export const removeImage = async (filePath: string) => {
   const supabase = await createClient();
   const { error } = await supabase.storage.from("images").remove([filePath]);
   return error;
+};
+
+export const getImagesUrlsByServiceId = async (serviceId: string) => {
+ try {
+    const imageService = await prisma.serviceImage.findMany({
+      where: {serviceId},
+    
+    });
+
+    if (!imageService) {
+      return { error: "Service not found" };
+    }
+
+    return { imageService };
+  } catch (error) {
+    // console.error("Error fetching service:", error);
+    return { error: "Failed to fetch service" };
+  }
 };

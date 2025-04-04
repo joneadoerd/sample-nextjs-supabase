@@ -17,14 +17,37 @@ export async function getCurrentUserProfile() {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    return null;
+    return null; // Auth failed, not a server error
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { id: user.id },
-  });
+  let attempts = 0;
+  const maxRetries = 3;
+  let lastError;
 
-  return profile;
+  while (attempts < maxRetries) {
+    try {
+      const profile = await prisma.profile.findUnique({
+        where: { id: user.id },
+      });
+
+      if (profile) return profile;
+
+      // If profile is null, retry (or you can choose to return null)
+      throw new Error("Profile not found");
+    } catch (err) {
+      attempts++;
+      lastError = err;
+
+      // Optional: short delay between retries
+      await new Promise((res) => setTimeout(res, 200));
+    }
+  }
+
+  // All retries failed
+  console.error("Failed to fetch profile after 3 attempts:", lastError);
+
+  // Throwing will trigger Next.js error boundary / 500 page
+  throw new Error("Server error: Unable to load user profile");
 }
 
 // 🔵 Get All Users (Admin Only)

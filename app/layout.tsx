@@ -6,24 +6,18 @@ import { NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
-import { Header } from "@/components/header";
 import { getCurrentUserProfile } from "@/actions/user-actions";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/react"
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+import { Analytics } from "@vercel/analytics/react";
+import { Suspense } from "react";
+import Loading from "./loading";
+import { Header } from "@/components/header";
 
 export const metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Home",
+  description: " My Portfolio",
 };
 
-const geistSans = Geist({
-  display: "swap",
-  subsets: ["latin"],
-});
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -51,14 +45,8 @@ export default async function RootLayout({
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
-      <html
-        lang={locale}
-        className={geistSans.className}
-        suppressHydrationWarning
-      >
+      <html lang={locale} suppressHydrationWarning>
         <body className="bg-background text-foreground">
-          <SpeedInsights />
-          <Analytics/>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -66,10 +54,10 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-              <Header user={user} locale={locale} />
+              <Header user={user} />
             </nav>
 
-            <div>{children}</div>
+            <Suspense fallback={<Loading />}>{children}</Suspense>
             <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
               <p>
                 Powered by{" "}
@@ -82,9 +70,9 @@ export default async function RootLayout({
                   Supabase
                 </a>
               </p>
-              <ThemeSwitcher />
             </footer>
-
+            <SpeedInsights />
+            <Analytics />
             <Toaster />
           </ThemeProvider>
         </body>

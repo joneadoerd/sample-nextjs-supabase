@@ -9,7 +9,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Service, ServiceWithRelations } from "@/prisma/types";
+import { ServiceWithRelations } from "@/prisma/types";
+import Image from "next/image";
 
 interface ServiceCardProps {
   service: ServiceWithRelations;
@@ -42,9 +43,10 @@ export function ServiceCard({ service }: ServiceCardProps) {
     <Link href={`/services/${service.id}`} className="block h-full">
       <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow">
         <div className="aspect-video relative overflow-hidden">
-          <img
+          <Image
             src={images[currentImage]?.url || "/placeholder.svg"}
             alt={service.name}
+            fill
             className="object-cover w-full h-full transition-transform duration-500"
           />
 

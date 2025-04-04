@@ -1,13 +1,14 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Edit } from "lucide-react";
+import { Edit, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ServiceImageGallery } from "@/components/services/service-image-gallery";
 import { getServiceById } from "@/lib/service-actions";
 import { getCurrentUserProfile } from "@/actions/user-actions";
+import { Suspense } from "react";
+import { getImagesUrlsByServiceId } from "@/lib/images-storage";
 
 interface ServicePageProps {
   id: string;
@@ -19,13 +20,24 @@ export default async function ServicePage({
   params: Promise<ServicePageProps>;
 }) {
   const { id } = await params;
-  const { service } = await getServiceById(id);
-  const currentUser = await getCurrentUserProfile();
+  const [{ service }, currentUser] = await Promise.all([
+    getServiceById(id),
+    getCurrentUserProfile(),
+  ]);
+  const {imageService} = await getImagesUrlsByServiceId(service?.id || "");
   const canEdit =
     currentUser?.role === "admin" ||
     (service && service.userId === currentUser?.id);
   if (!service) {
-    redirect(`/services/${currentUser?.id}/add`);
+    return <div className="flex flex-col items-center justify-center py-12 text-center">
+    <h2 className="text-xl font-semibold mb-2">No services found</h2>
+    <Link
+            href={`/services`}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            refresh
+          </Link>
+  </div>
   }
 
   return (
@@ -43,10 +55,15 @@ export default async function ServicePage({
               </Button>
             )}
           </div>
-
-          <ServiceImageGallery
-            images={service?.images?.map((image) => image.url || "") || []}
-          />
+          <Suspense
+            fallback={
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            }
+          >
+            <ServiceImageGallery
+              images={imageService?.map((image) => image.url || "") || []}
+            />
+          </Suspense>
 
           <div className="mt-8">
             <div className="flex items-center gap-2 mt-2">
@@ -105,7 +122,7 @@ export default async function ServicePage({
                   <p className="text-sm text-muted-foreground">
                     {format(
                       service?.user?.createdAt || new Date(),
-                      "MMM d, yyyy",
+                      "MMM d, yyyy"
                     )}
                   </p>
                 </div>

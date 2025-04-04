@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface ServiceImageGalleryProps {
   images: string[];
@@ -27,11 +28,12 @@ export function ServiceImageGallery({ images }: ServiceImageGalleryProps) {
   return (
     <div className="relative rounded-lg overflow-hidden">
       <div className="aspect-video relative">
-        <img
-          src={images[currentImage] || "/placeholder.svg"}
-          alt="Service image"
-          className="object-cover w-full h-full"
-        />
+          <Image
+            src={images[currentImage] || "/placeholder.svg"}
+            alt="Service image"
+            fill
+            className="object-cover w-full h-full"
+          />
       </div>
 
       {images.length > 1 && (
